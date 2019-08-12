@@ -36,7 +36,7 @@ class CustomerController extends AbstractFOSRestController
     public function getAllCustomer()
     {
         $repository = $this->getDoctrine()->getRepository(Customer::class);
-        $customers = $this->getUser()->getCustomers();
+        $customers = $repository->findByUser($this->getUser());
         return $this->handleView($this->view($customers));
     }
 
@@ -61,7 +61,11 @@ class CustomerController extends AbstractFOSRestController
         $repository = $this->getDoctrine()->getRepository(Customer::class);
         $customer = $repository->find($id);
         if(!is_null($customer)){
-            return $this->handleView($this->view($customer));
+            if($customer->getUser() == $this->getUser()) {
+                return $this->handleView($this->view($customer));
+            }
+            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_CREATED));
+
         }else{
             return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_CREATED));
         }
@@ -86,45 +90,51 @@ class CustomerController extends AbstractFOSRestController
      */
     public function createCustomer(Request $request)
     {
-        $customer = $this->getUser()->addCustomer();
+        $customer = new Customer();
         $form = $this->createForm(CustomerType::class, $customer);
         $data = json_decode($request->getContent(), true);
         $form->submit($data);
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
+            $customer->setUser($this->getUser());
             $em->persist($customer);
             $em->flush();
-            return $this->handleView($this->view(['status' => 'Product create success.'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'Customer create success.'], Response::HTTP_CREATED));
         }
         return $this->handleView($this->view($form->getErrors()));
     }
 
     /**
-     * Delete product
+     * Delete customer
      * @Rest\Delete(
-     *     "/api/products/{id}",
-     *     name = "products_delete",
+     *     "/api/customers/{id}",
+     *     name = "customers_delete",
      *     requirements = {"id"="\d+"}
      * )
      * @param $id
-     * @SWG\Tag(name="products")
+     * @SWG\Tag(name="customers")
      * @SWG\Response(
      *     response=201,
      *     description="Returns success"
      * )
      * @return Response
      */
-    public function deleteProduct($id)
+    public function deleteCustomer($id)
     {
-        $repository = $this->getDoctrine()->getRepository(Product::class);
-        $product = $repository->find($id);
-        if(!is_null($product)){
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($product);
-            $em->flush();
-            return $this->handleView($this->view(['status' => 'Product delete success.'], Response::HTTP_CREATED));
+        $repository = $this->getDoctrine()->getRepository(Customer::class);
+        $customer = $repository->find($id);
+        if(!is_null($customer)){
+            if($customer->getUser() == $this->getUser()){
+                $em = $this->getDoctrine()->getManager();
+                $em->remove($customer);
+                $em->flush();
+                return $this->handleView($this->view(['status' => 'Customer delete success.'], Response::HTTP_CREATED));
+            }
+
+            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_CREATED));
+
         }else{
-            return $this->handleView($this->view(['status' => 'Product not found.'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_CREATED));
         }
 
     }
