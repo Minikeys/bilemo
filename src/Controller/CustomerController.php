@@ -15,6 +15,10 @@ use Swagger\Annotations as SWG;
 use Hateoas\Configuration\Annotation as Hateoas;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
+/**
+ * Class CustomerController
+ * @package App\Controller
+ */
 class CustomerController extends AbstractFOSRestController
 {
 
@@ -44,7 +48,7 @@ class CustomerController extends AbstractFOSRestController
      * Get One Customer
      * @Rest\Get(
      *     "/api/customers/{id}",
-     *     name = "customers_show",
+     *     name = "get_customers",
      *     requirements = {"id"="\d+"}
      * )
      * @param $id
@@ -64,10 +68,10 @@ class CustomerController extends AbstractFOSRestController
             if($customer->getUser() == $this->getUser()) {
                 return $this->handleView($this->view($customer));
             }
-            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_NOT_FOUND));
 
         }else{
-            return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_NOT_FOUND));
         }
 
     }
@@ -75,9 +79,9 @@ class CustomerController extends AbstractFOSRestController
     /**
      * Create New Customer
      * @param Request $request
-     * @Rest\Post(
+     * @Rest\Put(
      *     "/api/customers",
-     *     name = "customers_create"
+     *     name = "new_custromers"
      * )
      * @Rest\View(StatusCode = 201)
      * @SWG\Response(
@@ -108,7 +112,7 @@ class CustomerController extends AbstractFOSRestController
      * Delete customer
      * @Rest\Delete(
      *     "/api/customers/{id}",
-     *     name = "customers_delete",
+     *     name = "delete_customers",
      *     requirements = {"id"="\d+"}
      * )
      * @param $id
@@ -131,10 +135,10 @@ class CustomerController extends AbstractFOSRestController
                 return $this->handleView($this->view(['status' => 'Customer delete success.'], Response::HTTP_CREATED));
             }
 
-            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_NOT_FOUND));
 
         }else{
-            return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_NOT_FOUND));
         }
 
     }
