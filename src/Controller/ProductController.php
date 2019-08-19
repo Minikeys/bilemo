@@ -10,7 +10,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Swagger\Annotations as SWG;
-use Hateoas\Configuration\Annotation as Hateoas;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 class ProductController extends AbstractFOSRestController
@@ -34,7 +33,8 @@ class ProductController extends AbstractFOSRestController
     public function getAllProducts()
     {
         $repository = $this->getDoctrine()->getRepository(Product::class);
-        $products = $repository->findall();
+        $products = $repository->findAll();
+
         return $this->handleView($this->view($products));
     }
 
@@ -61,69 +61,7 @@ class ProductController extends AbstractFOSRestController
         if(!is_null($product)){
             return $this->handleView($this->view($product));
         }else{
-            return $this->handleView($this->view(['status' => 'Product not found.'], Response::HTTP_CREATED));
-        }
-
-    }
-
-    /**
-     * Create New Product
-     * @Security("has_role('ROLE_ADMIN')")
-     * @param Request $request
-     * @Rest\Post(
-     *     "/api/products",
-     *     name = "products_create"
-     * )
-     * @Rest\View(StatusCode = 201)
-     * @SWG\Response(
-     *     response=201,
-     *     description="Returns product created",
-     *     @Model(type=Product::class)
-     * )
-     * @SWG\Tag(name="products")
-     * @return Response
-     */
-    public function createProduct(Request $request)
-    {
-        $product = new Product();
-        $form = $this->createForm(ProductType::class, $product);
-        $data = json_decode($request->getContent(), true);
-        $form->submit($data);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($product);
-            $em->flush();
-            return $this->handleView($this->view(['status' => 'Product create success.'], Response::HTTP_CREATED));
-        }
-        return $this->handleView($this->view($form->getErrors()));
-    }
-
-    /**
-     * Delete product
-     * @Rest\Delete(
-     *     "/api/products/{id}",
-     *     name = "products_delete",
-     *     requirements = {"id"="\d+"}
-     * )
-     * @param $id
-     * @SWG\Tag(name="products")
-     * @SWG\Response(
-     *     response=201,
-     *     description="Returns success"
-     * )
-     * @return Response
-     */
-    public function deleteProduct($id)
-    {
-        $repository = $this->getDoctrine()->getRepository(Product::class);
-        $product = $repository->find($id);
-        if(!is_null($product)){
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($product);
-            $em->flush();
-            return $this->handleView($this->view(['status' => 'Product delete success.'], Response::HTTP_CREATED));
-        }else{
-            return $this->handleView($this->view(['status' => 'Product not found.'], Response::HTTP_CREATED));
+            return $this->handleView($this->view(['status' => 'Product not found.'], Response::HTTP_NOT_FOUND));
         }
 
     }

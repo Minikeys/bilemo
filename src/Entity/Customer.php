@@ -3,9 +3,35 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
+ * @Hateoas\Relation(
+ *      "create",
+ *      href = @Hateoas\Route(
+ *          "new_custromers",
+ *          absolute = true
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "get_customers",
+ *          parameters = {"id" = "expr(object.getId())"},
+ *          absolute = true
+ *      )
+ * )
+ *
+ * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "delete_customers",
+ *          parameters = {"id" = "expr(object.getId())"},
+ *          absolute = true
+ *      )
+ * )
  */
 class Customer
 {

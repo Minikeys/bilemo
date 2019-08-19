@@ -23,10 +23,10 @@ class CustomerRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.user = :val')
-            ->select('c.name')
+            ->select('c.id', 'c.name')
             ->setParameter('val', $value)
             ->orderBy('c.id', 'ASC')
-            ->getQuery()
+            ->getQuery()->useQueryCache(true)->useResultCache(true, 3600)
             ->getResult()
             ;
     }

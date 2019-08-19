@@ -6,7 +6,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\User;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 class AuthController extends AbstractController
 {
@@ -30,5 +32,19 @@ class AuthController extends AbstractController
     public function api()
     {
         return new Response(sprintf('Logged in as %s', $this->getUser()->getUsername()));
+    }
+
+    /**
+     * @Route(name="login", path="/login_check")
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function login()
+    {
+        $user = $this->getUser();
+
+        return $this->json(array(
+            'username' => $user->getUsername(),
+            'role' => $user->getRoles(),
+        ));
     }
 }
