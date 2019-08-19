@@ -49,8 +49,12 @@ class ProductController extends AbstractFOSRestController
      * @SWG\Tag(name="products")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns one product",
+     *     description="Returns one product.",
      *     @Model(type=Product::class)
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Product not found.",
      * )
      * @return Response
      */

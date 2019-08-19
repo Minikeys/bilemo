@@ -55,8 +55,16 @@ class CustomerController extends AbstractFOSRestController
      * @SWG\Tag(name="customers")
      * @SWG\Response(
      *     response=200,
-     *     description="Returns one customer",
+     *     description="Returns one customer.",
      *     @Model(type=Customer::class)
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Customer not linked to your account.",
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Customer not found.",
      * )
      * @return Response
      */
@@ -66,9 +74,9 @@ class CustomerController extends AbstractFOSRestController
         $customer = $repository->find($id);
         if(!is_null($customer)){
             if($customer->getUser() == $this->getUser()) {
-                return $this->handleView($this->view($customer));
+                return $this->handleView($this->view($customer, Response::HTTP_OK));
             }
-            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_NOT_FOUND));
+            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_UNAUTHORIZED));
 
         }else{
             return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_NOT_FOUND));
@@ -81,13 +89,12 @@ class CustomerController extends AbstractFOSRestController
      * @param Request $request
      * @Rest\Put(
      *     "/api/customers",
-     *     name = "new_custromers"
+     *     name = "create_custromers"
      * )
      * @Rest\View(StatusCode = 201)
      * @SWG\Response(
      *     response=201,
-     *     description="Returns customer created",
-     *     @Model(type=Customer::class)
+     *     description="Returns customer {id} created",
      * )
      * @SWG\Tag(name="customers")
      * @return Response
@@ -103,7 +110,8 @@ class CustomerController extends AbstractFOSRestController
             $customer->setUser($this->getUser());
             $em->persist($customer);
             $em->flush();
-            return $this->handleView($this->view(['status' => 'Customer create success.'], Response::HTTP_CREATED));
+            $id = $customer->getId();
+            return $this->handleView($this->view(['status' => 'Customer '. $id .' create success.'], Response::HTTP_CREATED));
         }
         return $this->handleView($this->view($form->getErrors()));
     }
@@ -118,8 +126,16 @@ class CustomerController extends AbstractFOSRestController
      * @param $id
      * @SWG\Tag(name="customers")
      * @SWG\Response(
-     *     response=201,
-     *     description="Returns success"
+     *     response=200,
+     *     description="Returns success deleted.",
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Customer not linked to your account.",
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Customer not found.",
      * )
      * @return Response
      */
@@ -132,10 +148,10 @@ class CustomerController extends AbstractFOSRestController
                 $em = $this->getDoctrine()->getManager();
                 $em->remove($customer);
                 $em->flush();
-                return $this->handleView($this->view(['status' => 'Customer delete success.'], Response::HTTP_CREATED));
+                return $this->handleView($this->view(['status' => 'Customer delete success.'], Response::HTTP_OK));
             }
 
-            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_NOT_FOUND));
+            return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_UNAUTHORIZED));
 
         }else{
             return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_NOT_FOUND));

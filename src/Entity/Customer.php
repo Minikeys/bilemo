@@ -10,7 +10,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  * @Hateoas\Relation(
  *      "create",
  *      href = @Hateoas\Route(
- *          "new_custromers",
+ *          "create_custromers",
  *          absolute = true
  *      )
  * )
