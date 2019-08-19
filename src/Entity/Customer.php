@@ -4,15 +4,22 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ *
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
+ * @UniqueEntity("lastname", message="This lastname is already used.")
+ *
  * @Hateoas\Relation(
  *      "create",
  *      href = @Hateoas\Route(
  *          "create_custromers",
  *          absolute = true
- *      )
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups = {"list", "details"})
  * )
  *
  * @Hateoas\Relation(
@@ -21,7 +28,8 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *          "get_customers",
  *          parameters = {"id" = "expr(object.getId())"},
  *          absolute = true
- *      )
+ *      ),
+ *     exclusion = @Hateoas\Exclusion(groups = {"list", "details"})
  * )
  *
  * @Hateoas\Relation(
@@ -30,7 +38,8 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *          "delete_customers",
  *          parameters = {"id" = "expr(object.getId())"},
  *          absolute = true
- *      )
+ *      ),
+ *     exclusion = @Hateoas\Exclusion(groups = {"list", "details"})
  * )
  */
 class Customer
@@ -39,11 +48,14 @@ class Customer
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"list", "details"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"list", "details"})
      */
     private $firstname;
 
@@ -55,26 +67,36 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank
+     * @Groups({"list", "details"})
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank
+     * @Groups({"details"})
      */
     private $address;
 
     /**
      * @ORM\Column(type="integer")
+     * @Assert\NotBlank
+     * @Groups({"details"})
      */
     private $postalcode;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"details"})
      */
     private $city;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
+     * @Groups({"details"})
      */
     private $country;
 
@@ -85,7 +107,7 @@ class Customer
 
     public function getFirstname(): ?string
     {
-        return $this->name;
+        return $this->firstname;
     }
 
     public function setFirstname(string $firstname): self
@@ -109,12 +131,12 @@ class Customer
 
     public function getLastname(): ?string
     {
-        return $this->Lastname;
+        return $this->lastname;
     }
 
-    public function setLastname(string $Lastname): self
+    public function setLastname(string $lastname): self
     {
-        $this->Lastname = $Lastname;
+        $this->lastname = $lastname;
 
         return $this;
     }

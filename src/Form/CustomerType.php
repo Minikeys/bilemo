@@ -13,7 +13,12 @@ class CustomerType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
+            ->add('firstname')
+            ->add('lastname')
+            ->add('address')
+            ->add('postalcode')
+            ->add('city')
+            ->add('country')
             ->add('user')
             ->add('save',SubmitType::class)
         ;
@@ -23,7 +28,7 @@ class CustomerType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Customer::class,
-            'csrf_protection'=>false
+            'csrf_protection'=>false,
         ]);
     }
 }
