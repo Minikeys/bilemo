@@ -88,7 +88,6 @@ class CustomerController extends AbstractFOSRestController
      * Create New Customer
      *
      * @param Request $request
-     *
      * @return Response
      * @Rest\Put(
      *     "/api/customers",
@@ -108,11 +107,11 @@ class CustomerController extends AbstractFOSRestController
     {
         $customer = new Customer();
         $form = $this->createForm(CustomerType::class, $customer);
-        $customer->setUser($this->getUser());
         $data = json_decode($request->getContent(), true);
         $form->submit($data);
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
+            $customer->setUser($this->getUser());
             $em->persist($customer);
             $em->flush();
             $id = $customer->getId();
