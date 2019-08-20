@@ -19,18 +19,6 @@ class CustomerRepository extends ServiceEntityRepository
         parent::__construct($registry, Customer::class);
     }
 
-    public function findByUser($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.user = :val')
-            ->select('c.id', 'c.name')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->getQuery()->useQueryCache(true)->useResultCache(true, 3600)
-            ->getResult()
-            ;
-    }
-
     // /**
     //  * @return Customer[] Returns an array of Customer objects
     //  */
