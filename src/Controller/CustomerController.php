@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Customer;
-use JMS\Serializer\SerializationContext;
 use App\Form\CustomerType;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
-use JMS\Serializer\Serializer;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -90,14 +88,12 @@ class CustomerController extends AbstractFOSRestController
      * Create New Customer
      *
      * @param Request $request
-     * @param ConstraintViolationList $violations
      *
      * @return Response
      * @Rest\Put(
      *     "/api/customers",
      *     name = "create_custromers"
      * )
-     * @Rest\View(StatusCode = 201)
      * @SWG\Response(
      *     response=201,
      *     description="Returns customer {id} created.",
@@ -108,7 +104,7 @@ class CustomerController extends AbstractFOSRestController
      * )
      * @SWG\Tag(name="customers")
      */
-    public function createCustomer(Request $request, ValidatorInterface $validator)
+    public function createCustomer(Request $request)
     {
         $customer = new Customer();
         $form = $this->createForm(CustomerType::class, $customer);

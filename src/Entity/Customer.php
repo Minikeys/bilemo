@@ -68,6 +68,7 @@ class Customer
     /**
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank
+     * @Assert\NotNull
      * @Groups({"list", "details"})
      */
     private $lastname;
@@ -75,6 +76,7 @@ class Customer
     /**
      * @ORM\Column(type="text")
      * @Assert\NotBlank
+     * @Assert\NotNull
      * @Groups({"details"})
      */
     private $address;
@@ -82,6 +84,7 @@ class Customer
     /**
      * @ORM\Column(type="integer")
      * @Assert\NotBlank
+     * @Assert\NotNull
      * @Groups({"details"})
      */
     private $postalcode;
@@ -89,6 +92,7 @@ class Customer
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Assert\NotNull
      * @Groups({"details"})
      */
     private $city;
@@ -96,6 +100,7 @@ class Customer
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @Assert\NotNull
      * @Groups({"details"})
      */
     private $country;

@@ -4,10 +4,22 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
- * @Hateoas\Relation("self", href = "expr('/api/products/' ~ object.getId())")
+ * @UniqueEntity("name", message="This name is already used.")
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "get_products",
+ *          parameters = {"id" = "expr(object.getId())"},
+ *          absolute = true
+ *      ),
+ *     exclusion = @Hateoas\Exclusion(groups = {"list", "details"})
+ * )
  */
 class Product
 {
@@ -15,31 +27,47 @@ class Product
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"list", "details"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Groups({"list", "details"})
+     * @Assert\NotBlank
+     * @Assert\NotNull
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"details"})
+     * @Assert\NotBlank
+     * @Assert\NotNull
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"details"})
+     * @Assert\NotBlank
+     * @Assert\NotNull
      */
     private $brand;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"details"})
+     * @Assert\NotBlank
+     * @Assert\NotNull
      */
     private $reference;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"details"})
+     * @Assert\NotBlank
+     * @Assert\NotNull
      */
     private $price;
 
