@@ -8,6 +8,12 @@ And you can manage your customers to easy your life !
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/9ccba3ebb0bd42ceb8a9/maintainability)](https://codeclimate.com/github/Minikeys/bilemo/maintainability)
 
+## Documentation :
+
+For access documentation :
+1.  Install the API.
+2.  Go to http://youradress/api/doc
+
 ## Prerequisites :
 
 *   Php 7.1 or higher
