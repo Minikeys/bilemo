@@ -1,5 +1,7 @@
 # API Bilemo
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/9ccba3ebb0bd42ceb8a9/maintainability)](https://codeclimate.com/github/Minikeys/bilemo/maintainability)
+
 ## Prerequisites :
 
 *   Php 7.1 or higher
