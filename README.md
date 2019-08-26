@@ -1,4 +1,10 @@
-# API Bilemo
+# API BileMo
+
+BileMo API is a B2B API.
+
+With our API, you can access our mobile phone catalog available for sale.
+
+And you can manage your customers to easy your life !
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/9ccba3ebb0bd42ceb8a9/maintainability)](https://codeclimate.com/github/Minikeys/bilemo/maintainability)
 
