@@ -8,7 +8,7 @@ register:
   methods: POST
 
 login_check:
-  path:     /api/login_check
+  path: /api/login_check
   methods:  [POST]
 
 app.swagger_ui:

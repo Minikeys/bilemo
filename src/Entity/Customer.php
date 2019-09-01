@@ -11,7 +11,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  *
  * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
- * @UniqueEntity("lastname", message="This lastname is already used.")
  *
  * @Hateoas\Relation(
  *      "create",
@@ -66,7 +65,7 @@ class Customer
     private $user;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
      * @Assert\NotNull
      * @Groups({"list", "details"})
