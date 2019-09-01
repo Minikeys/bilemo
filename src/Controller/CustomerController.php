@@ -6,12 +6,14 @@ use App\Entity\Customer;
 use App\Form\CustomerType;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Swagger\Annotations as SWG;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Class CustomerController
@@ -27,6 +29,7 @@ class CustomerController extends AbstractFOSRestController
      *      name = "customers"
      * )
      * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      * @SWG\Response(
      *     response=200,
      *     description="Returns all customers",
@@ -38,9 +41,18 @@ class CustomerController extends AbstractFOSRestController
      */
     public function getAllCustomer()
     {
-        $repository = $this->getDoctrine()->getRepository(Customer::class);
-        $customers = $repository->findBy(['user' => $this->getUser()]);
-        return $customers;
+        $user = $this->getUser();
+        $cache = new FilesystemAdapter();
+        $value = $cache->get('customers'.$user->getId(), function (ItemInterface $item) {
+            $item->expiresAfter(3600);
+
+            $repository = $this->getDoctrine()->getRepository(Customer::class);
+            $customers = $repository->findBy(['user' => $this->getUser()]);
+            return $customers;
+        });
+
+        return $value;
+
     }
 
     /**
@@ -70,16 +82,33 @@ class CustomerController extends AbstractFOSRestController
      */
     public function getOneCustomer($id)
     {
-        $repository = $this->getDoctrine()->getRepository(Customer::class);
-        $customer = $repository->find($id);
-        if(!is_null($customer)){
-            if($customer->getUser() == $this->getUser()) {
-                return $customer;
+        $cache = new FilesystemAdapter();
+        $customer = $cache->getItem('customer.'.$id);
+
+        if (!$customer->isHit()) {
+            $repository = $this->getDoctrine()->getRepository(Customer::class);
+            $customer->set($repository->find($id));
+            $value = $customer->get();
+
+            if($value->getUser() == $this->getUser()) {
+                return $value;
             }
             return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_UNAUTHORIZED));
 
         }else{
-            return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_NOT_FOUND));
+
+            $customer = $cache->getItem('product.'.$id);
+            $value = $customer->get();
+
+            if(!is_null($value)){
+                if($value->getUser() == $this->getUser()) {
+                    return $value;
+                }
+                return $this->handleView($this->view(['status' => 'Customer is not linked to your account.'], Response::HTTP_UNAUTHORIZED));
+
+            }else{
+                return $this->handleView($this->view(['status' => 'Customer not found.'], Response::HTTP_NOT_FOUND));
+            }
         }
 
     }
