@@ -5,9 +5,11 @@ namespace App\Controller;
 use App\Entity\Product;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Response;
 use Swagger\Annotations as SWG;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class ProductController extends AbstractFOSRestController
 {
@@ -19,6 +21,7 @@ class ProductController extends AbstractFOSRestController
      *      name = "products"
      * )
      * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      * @SWG\Response(
      *     response=200,
      *     description="Returns all products",
@@ -29,10 +32,18 @@ class ProductController extends AbstractFOSRestController
      */
     public function getAllProducts()
     {
-        $repository = $this->getDoctrine()->getRepository(Product::class);
-        $products = $repository->findAll();
 
-        return $products;
+        $cache = new FilesystemAdapter();
+        $value = $cache->get('products', function (ItemInterface $item) {
+            $item->expiresAfter(3600);
+
+            $repository = $this->getDoctrine()->getRepository(Product::class);
+            $products = $repository->findAll();
+
+            return $products;
+        });
+
+        return $value;
     }
 
     /**
@@ -58,13 +69,32 @@ class ProductController extends AbstractFOSRestController
      */
     public function getOneProduct($id)
     {
-        $repository = $this->getDoctrine()->getRepository(Product::class);
-        $product = $repository->find($id);
-        if(!is_null($product)){
-            return $product;
+        $cache = new FilesystemAdapter();
+        $product = $cache->getItem('product.'.$id);
+
+        if (!$product->isHit()) {
+            $repository = $this->getDoctrine()->getRepository(Product::class);
+            $product->set($repository->find($id));
+            $product = $cache->getItem('product.'.$id);
+            $value = $product->get();
+            return $value;
         }else{
-            return $this->handleView($this->view(['status' => 'Product not found.'], Response::HTTP_NOT_FOUND));
+
+            $product = $cache->getItem('product.'.$id);
+            $value = $product->get();
+
+            if(!is_null($value)){
+                return $value;
+            }else {
+                return $this->handleView($this->view(['status' => 'Product not found.'], Response::HTTP_NOT_FOUND));
+            }
+
         }
+
+
+
+
+
 
     }
 
