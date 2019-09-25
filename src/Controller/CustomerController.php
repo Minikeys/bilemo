@@ -117,7 +117,9 @@ class CustomerController extends AbstractFOSRestController
      * Create New Customer
      *
      * @param Request $request
+     *
      * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      * @Rest\Put(
      *     "/api/customers",
      *     name = "create_custromers"
@@ -144,6 +146,8 @@ class CustomerController extends AbstractFOSRestController
             $em->persist($customer);
             $em->flush();
             $id = $customer->getId();
+            $cache = new FilesystemAdapter();
+            $cache->delete('customers'.$this->getUser()->getId());
             return $this->handleView($this->view(['status' => 'Customer '. $id .' create success.'], Response::HTTP_CREATED));
         }
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
@@ -156,7 +160,11 @@ class CustomerController extends AbstractFOSRestController
      *     name = "delete_customers",
      *     requirements = {"id"="\d+"}
      * )
+     *
      * @param $id
+     *
+     * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      * @SWG\Tag(name="customers")
      * @SWG\Response(
      *     response=200,
@@ -170,7 +178,6 @@ class CustomerController extends AbstractFOSRestController
      *     response=404,
      *     description="Customer not found.",
      * )
-     * @return Response
      */
     public function deleteCustomer($id)
     {
@@ -181,6 +188,8 @@ class CustomerController extends AbstractFOSRestController
                 $em = $this->getDoctrine()->getManager();
                 $em->remove($customer);
                 $em->flush();
+                $cache = new FilesystemAdapter();
+                $cache->delete('customers'.$this->getUser()->getId());
                 return $this->handleView($this->view(['status' => 'Customer delete success.'], Response::HTTP_OK));
             }
 

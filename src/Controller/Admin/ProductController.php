@@ -6,6 +6,7 @@ use App\Entity\Product;
 use App\Form\ProductType;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Swagger\Annotations as SWG;
@@ -15,7 +16,11 @@ class ProductController extends AbstractFOSRestController
 {
     /**
      * Create New Product
+     *
      * @param Request $request
+     *
+     * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      * @Rest\Put(
      *     "/admin/api/products",
      *     name = "products_create"
@@ -31,7 +36,6 @@ class ProductController extends AbstractFOSRestController
      *     description="Returns errors.",
      * )
      * @SWG\Tag(name="products")
-     * @return Response
      */
     public function createProduct(Request $request)
     {
@@ -44,6 +48,8 @@ class ProductController extends AbstractFOSRestController
             $em->persist($product);
             $em->flush();
             $id = $product->getId();
+            $cache = new FilesystemAdapter();
+            $cache->delete('products');
             return $this->handleView($this->view(['status' => 'Product '. $id .' create success.'], Response::HTTP_CREATED));
         }
         return $this->handleView($this->view($form->getErrors(), Response::HTTP_BAD_REQUEST));
@@ -56,7 +62,11 @@ class ProductController extends AbstractFOSRestController
      *     name = "products_delete",
      *     requirements = {"id"="\d+"}
      * )
+     *
      * @param $id
+     *
+     * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      * @SWG\Tag(name="products")
      * @SWG\Response(
      *     response=200,
@@ -66,7 +76,6 @@ class ProductController extends AbstractFOSRestController
      *     response=404,
      *     description="Customer not found.",
      * )
-     * @return Response
      */
     public function deleteProduct($id)
     {
@@ -76,6 +85,8 @@ class ProductController extends AbstractFOSRestController
             $em = $this->getDoctrine()->getManager();
             $em->remove($product);
             $em->flush();
+            $cache = new FilesystemAdapter();
+            $cache->delete('products');
             return $this->handleView($this->view(['status' => 'Product delete success.'], Response::HTTP_OK));
         }else{
             return $this->handleView($this->view(['status' => 'Product not found.'], Response::HTTP_NOT_FOUND));
