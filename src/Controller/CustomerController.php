@@ -87,7 +87,7 @@ class CustomerController extends AbstractFOSRestController
 
         if (!$customer->isHit()) {
             $repository = $this->getDoctrine()->getRepository(Customer::class);
-            $customer->set($repository->find($id));
+            $cache->save($customer->set($repository->find($id)));
             $value = $customer->get();
 
             if($value->getUser() == $this->getUser()) {

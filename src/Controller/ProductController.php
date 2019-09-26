@@ -74,7 +74,7 @@ class ProductController extends AbstractFOSRestController
 
         if (!$product->isHit()) {
             $repository = $this->getDoctrine()->getRepository(Product::class);
-            $product->set($repository->find($id));
+            $cache->save($product->set($repository->find($id)));
             $product = $cache->getItem('product.'.$id);
             $value = $product->get();
             return $value;
